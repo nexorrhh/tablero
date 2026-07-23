@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calidad — Cimomet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <script>(function(){var t=localStorage.getItem('cmt_theme');document.documentElement.setAttribute('data-theme',t||'dark');}());</script>
+  <style>
+:root {
+  --bg:#0b090d;--sf1:#141118;--sf2:#1b1721;--sf3:#241f2c;
+  --accent:#e0218a;--accent-b:#ff4fa3;--accent-d:#b81b72;
+  --t1:#f5f2f7;--t2:#b3acbe;--t3:#7c7589;
+  --bd:rgba(255,255,255,0.065);
+  --ok:#3ecf8e;--warn:#f5b740;--err:#f2585d;--info:#5aa9f5;
+  --r:16px;--hh:72px;
+  --bg-gradient:radial-gradient(ellipse at 70% -10%,#1a0f20 0%,#0b090d 55%);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);background-image:var(--bg-gradient);
+  font-family:'DM Sans',system-ui,sans-serif;color:var(--t1);line-height:1.5;overflow:hidden}
+#root{height:100%}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+
+/* Layout standalone */
+.cal-app{display:flex;flex-direction:column;height:100vh}
+.cal-header{
+  height:var(--hh);flex-shrink:0;
+  background:rgba(11,9,13,0.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--bd);
+  padding:0 32px;display:flex;align-items:center;justify-content:space-between}
+.cal-brand{display:flex;align-items:center;gap:14px}
+.cal-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--t1)}
+.cal-logo span{color:var(--accent)}
+.cal-sep{width:1px;height:22px;background:var(--bd)}
+.cal-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--t1)}
+.cal-body{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.content{flex:1;overflow-y:auto;padding:28px 32px 48px;scroll-behavior:smooth}
+.content::-webkit-scrollbar{width:6px}
+.content::-webkit-scrollbar-track{background:transparent}
+.content::-webkit-scrollbar-thumb{background:var(--sf3);border-radius:3px}
+
+/* Fade */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeUp .22s ease forwards}
+
+/* Tabs */
+.tabs-bar{display:flex;gap:2px;border-bottom:1px solid var(--bd);
+  background:rgba(11,9,13,0.88);backdrop-filter:blur(12px);
+  padding:0 32px;flex-shrink:0;overflow-x:auto}
+.tabs-bar::-webkit-scrollbar{display:none}
+.tab-btn{padding:11px 15px 10px;font-size:12.5px;font-weight:450;color:var(--t3);
+  cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:color .13s,border-color .13s;white-space:nowrap;
+  background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tab-btn:hover{color:var(--t2)}
+.tab-btn.active{color:var(--t1);font-weight:500;border-bottom-color:var(--accent)}
+
+/* KPI */
+.kpi{background:var(--sf1);border:1px solid var(--bd);border-radius:var(--r);padding:20px 22px 18px;transition:border-color .2s}
+.kpi:hover{border-color:rgba(224,33,138,.18)}
+.kpi-icon{width:36px;height:36px;border-radius:10px;background:var(--sf2);display:flex;align-items:center;justify-content:center;color:var(--accent);margin-bottom:14px}
+.kpi-label{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.kpi-value{font-family:'DM Serif Display',serif;font-size:30px;line-height:1;color:var(--t1)}
+.kpi-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:8px}
+.kpi-note{font-size:11px;color:var(--t3)}
+.kpi-prog{height:3px;background:var(--sf3);border-radius:2px;margin-top:12px;overflow:hidden}
+.kpi-prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .5s ease}
+
+/* Card */
+.card{background:var(--sf1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.card-header{padding:16px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.card-title{font-size:13.5px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:8px}
+.card-title-icon{color:var(--accent)}
+.card-body{padding:20px 22px}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:500;letter-spacing:.1px;white-space:nowrap}
+.badge-success{background:rgba(62,207,142,.12);color:#3ecf8e}
+.badge-warning{background:rgba(245,183,64,.12);color:#f5b740}
+.badge-danger{background:rgba(242,88,93,.12);color:#f2585d}
+.badge-info{background:rgba(90,169,245,.12);color:#5aa9f5}
+.badge-neutral{background:rgba(124,117,137,.12);color:#b3acbe}
+.badge-accent{background:rgba(224,33,138,.12);color:#e0218a}
+
+/* Delta */
+.delta{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600}
+.delta-up{color:#3ecf8e}.delta-down{color:#f2585d}.delta-flat{color:#7c7589}
+
+/* Table */
+.tbl-wrap{overflow-x:auto}
+.tbl-filters{display:flex;gap:6px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--bd)}
+.chip{padding:4px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;
+  border:1px solid var(--bd);color:var(--t2);background:transparent;transition:all .13s;font-family:inherit}
+.chip:hover{border-color:rgba(224,33,138,.3);color:var(--t1)}
+.chip.active{background:rgba(224,33,138,.1);border-color:rgba(224,33,138,.3);color:var(--accent)}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--t3);padding:10px 16px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--bd);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+td{padding:11px 16px;font-size:13px;color:var(--t2);vertical-align:middle}
+.cell-id{font-family:monospace;font-size:12px;color:var(--t3)}
+.cell-strong{font-weight:500;color:var(--t1)}
+
+/* Progress */
+.prog{height:5px;background:var(--sf3);border-radius:3px;overflow:hidden;min-width:60px}
+.prog-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s ease}
+.prog-fill-ok{background:var(--ok)}
+
+/* Hub button */
+.hub-btn{display:flex;align-items:center;gap:14px;padding:15px 18px;border-radius:12px;
+  background:var(--sf2);border:1px solid var(--bd);cursor:pointer;transition:all .15s;
+  margin-bottom:8px;text-align:left;width:100%;font-family:inherit;color:inherit}
+.hub-btn:hover{background:var(--sf3);border-color:rgba(224,33,138,.2)}
+.hub-btn-ico{width:40px;height:40px;border-radius:10px;background:rgba(224,33,138,.1);
+  display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
+.hub-btn-body{flex:1}
+.hub-btn-title{font-size:14px;font-weight:500;color:var(--t1)}
+.hub-btn-sub{font-size:11.5px;color:var(--t3);margin-top:2px}
+.hub-btn-arr{color:var(--t3);flex-shrink:0}
+
+/* Vital */
+.vital{background:var(--sf1);border:1px solid var(--bd);border-radius:var(--r);padding:26px 28px 22px}
+.vital-header{margin-bottom:16px}
+.vital-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:6px}
+.vital-pct{font-family:'DM Serif Display',serif;font-size:52px;line-height:1;color:var(--t1)}
+.vital-pct sup{font-size:22px;color:var(--t3);vertical-align:top;margin-top:10px;display:inline-block;font-family:'DM Sans',sans-serif}
+.vital-bar-wrap{height:8px;background:var(--sf3);border-radius:4px;overflow:hidden;display:flex;margin-bottom:14px}
+.vital-bar-seg{height:100%}
+.vital-legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-bottom:14px}
+.vital-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2)}
+.vital-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.vital-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.vital-note{font-size:11px;color:var(--t3)}
+
+/* Grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.mb24{margin-bottom:24px}
+
+/* Utils */
+.t1{color:var(--t1)}.t2{color:var(--t2)}.t3{color:var(--t3)}
+.f12{font-size:12px}
+
+/* Select / dropdown */
+.sel-trigger{display:flex;align-items:center;gap:8px;background:var(--sf2);color:var(--t1);
+  border:1px solid var(--bd);border-radius:7px;padding:5px 10px 5px 12px;
+  font-size:12.5px;font-family:inherit;cursor:pointer;outline:none;min-width:130px;
+  transition:border-color .13s,background .13s;white-space:nowrap}
+.sel-trigger:hover,.sel-trigger.open{border-color:rgba(224,33,138,.35);background:var(--sf3)}
+.sel-trigger>span:first-child{flex:1;text-align:left}
+.sel-chevron{opacity:.5;display:flex;align-items:center;transition:transform .15s}
+.sel-trigger.open .sel-chevron{transform:rotate(180deg)}
+.sel-dropdown{background:var(--sf1);border:1px solid var(--bd);border-radius:9px;padding:4px;
+  box-shadow:0 12px 40px rgba(0,0,0,.3);overflow-y:auto;max-height:260px}
+.sel-opt{padding:7px 12px;border-radius:6px;font-size:12.5px;color:var(--t2);cursor:pointer;white-space:nowrap;transition:background .1s,color .1s}
+.sel-opt:hover{background:var(--sf2);color:var(--t1)}
+.sel-opt.active{color:var(--accent);background:rgba(224,33,138,.08)}
+
+/* Theme button */
+.theme-btn{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:var(--sf2);border:1px solid var(--bd);color:var(--t2);cursor:pointer;transition:all .13s;font-family:inherit}
+.theme-btn:hover{color:var(--t1);border-color:rgba(224,33,138,.25)}
+
+/* Error boundary */
+.error-boundary{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:64px 32px;text-align:center;color:var(--t2)}
+.error-boundary-title{font-size:16px;font-weight:600;color:var(--t1)}
+.error-boundary-msg{font-size:11.5px;color:var(--err);font-family:monospace;
+  max-width:480px;word-break:break-all;background:var(--sf2);padding:10px 14px;border-radius:8px}
+.error-boundary button{margin-top:4px;padding:8px 20px;background:var(--accent);color:white;
+  border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+
+/* Responsive */
+@media(max-width:1200px){.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.g3{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+@media(max-width:640px){.cal-header{padding:0 16px}.content{padding:16px 16px 40px}.tabs-bar{padding:0 16px}}
+
+/* Light theme */
+[data-theme="light"]{
+  --bg:#f8f6fb;--sf1:#ffffff;--sf2:#f3f0f8;--sf3:#e7e3f0;
+  --t1:#1a1522;--t2:#4d4565;--t3:#8b80a0;
+  --bd:rgba(0,0,0,.08);
+  --bg-gradient:radial-gradient(ellipse at 70% -10%,#ede8f8 0%,#f8f6fb 55%);
+}
+[data-theme="light"] .cal-header{background:rgba(248,246,251,.95)}
+[data-theme="light"] .tabs-bar{background:rgba(248,246,251,.92)}
+[data-theme="light"] .sel-dropdown{box-shadow:0 8px 24px rgba(0,0,0,.12)}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- React 18 + Babel -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js" crossorigin></script>
+
+<!-- Supabase Calidad (anon key — solo lectura) -->
+<script>
+window.CALIDAD_CONFIG = {
+  url: 'https://rgzjpnmtwglnxwywvloz.supabase.co/rest/v1',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnempwbm10d2dsbnh3eXd2bG96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODI3MDQsImV4cCI6MjA5NTQ1ODcwNH0.81w_FAQbZtcX9xpWDF-AHqfXRim4iIA0jhtO_paTZPk'
+};
+</script>
+
+<script type="text/babel">
+/* ── Aliases ───────────────────────────────────────────── */
+const { useState: _us, useMemo: _um, useEffect: _ue, useRef: _ur } = React;
+const _useState2 = React.useState;
+const _useMemo   = React.useMemo;
+
+/* ── ICONS ─────────────────────────────────────────────── */
+const ICONS = {
+  home:[['path',{d:'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'}],['path',{d:'M9 22V12h6v10'}]],
+  users:[['path',{d:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'}],['circle',{cx:'9',cy:'7',r:'4'}],['path',{d:'M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'}]],
+  check:[['path',{d:'M22 11.08V12a10 10 0 1 1-5.93-9.14'}],['polyline',{points:'22 4 12 14.01 9 11.01'}]],
+  alert:[['path',{d:'M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'}],['line',{x1:'12',y1:'9',x2:'12',y2:'13'}],['line',{x1:'12',y1:'17',x2:'12.01',y2:'17'}]],
+  factory:[['path',{d:'M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7-6H4a2 2 0 0 0-2 2v16z'}],['path',{d:'M7 2v6h10'}],['rect',{x:'7',y:'12',width:'4',height:'5'}],['rect',{x:'13',y:'12',width:'4',height:'5'}]],
+  pulse:[['polyline',{points:'22 12 18 12 15 21 9 3 6 12 2 12'}]],
+  medal:[['circle',{cx:'12',cy:'8',r:'7'}],['polyline',{points:'8.21 13.89 7 23 12 20 17 23 15.79 13.88'}]],
+  clipboard:[['path',{d:'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'}],['rect',{x:'8',y:'2',width:'8',height:'4',rx:'1',ry:'1'}],['line',{x1:'9',y1:'12',x2:'15',y2:'12'}],['line',{x1:'9',y1:'16',x2:'15',y2:'16'}]],
+  arrowRight:[['line',{x1:'5',y1:'12',x2:'19',y2:'12'}],['polyline',{points:'12 5 19 12 12 19'}]],
+  chevronDown:[['polyline',{points:'6 9 12 15 18 9'}]],
+  sun:[['circle',{cx:'12',cy:'12',r:'5'}],['line',{x1:'12',y1:'1',x2:'12',y2:'3'}],['line',{x1:'12',y1:'21',x2:'12',y2:'23'}],['line',{x1:'4.22',y1:'4.22',x2:'5.64',y2:'5.64'}],['line',{x1:'18.36',y1:'18.36',x2:'19.78',y2:'19.78'}],['line',{x1:'1',y1:'12',x2:'3',y2:'12'}],['line',{x1:'21',y1:'12',x2:'23',y2:'12'}],['line',{x1:'4.22',y1:'19.78',x2:'5.64',y2:'18.36'}],['line',{x1:'18.36',y1:'5.64',x2:'19.78',y2:'4.22'}]],
+  moon:[['path',{d:'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'}]],
+};
+function Icon({ name, size=18, className='', style={} }) {
+  const defs = ICONS[name];
+  if (!defs) return React.createElement('svg',{width:size,height:size,viewBox:'0 0 24 24',className,style});
+  return React.createElement('svg',
+    {width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',
+     strokeWidth:'1.75',strokeLinecap:'round',strokeLinejoin:'round',className,style},
+    ...defs.map(([tag,attrs],i) => React.createElement(tag,{key:i,...attrs}))
+  );
+}
+
+/* ── CHARTS ────────────────────────────────────────────── */
+function Sparkline({ data=[], width=80, height=30, color='#e0218a', strokeWidth=1.75 }) {
+  if (!data||data.length<2) return null;
+  const min=Math.min(...data),max=Math.max(...data),range=max-min||1,pad=2;
+  const pts=data.map((v,i)=>{
+    const x=(i/(data.length-1))*width;
+    const y=height-pad-((v-min)/range)*(height-pad*2);
+    return `${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(' ');
+  return <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{display:'block',overflow:'visible'}}>
+    <polyline points={pts} fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinejoin="round" strokeLinecap="round"/>
+  </svg>;
+}
+
+function AreaChart({ data=[], labels=[], height=200, objetivo=null, color='#e0218a', unit='', showDots=true }) {
+  const VW=600,VH=height,PAD={top:16,right:16,bottom:28,left:44};
+  const W=VW-PAD.left-PAD.right,H=VH-PAD.top-PAD.bottom;
+  if (!data.length) return null;
+  const allVals=objetivo?[...data,objetivo]:[...data];
+  const dataMin=Math.min(...allVals),dataMax=Math.max(...allVals);
+  const pad=(dataMax-dataMin)*0.1||10;
+  const yMin=Math.max(0,dataMin-pad),yMax=dataMax+pad,yRange=yMax-yMin||1;
+  const px=i=>PAD.left+(i/Math.max(data.length-1,1))*W;
+  const py=v=>PAD.top+H-((v-yMin)/yRange)*H;
+  const linePts=data.map((v,i)=>`${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+  const areaD=data.length>1?`M ${px(0).toFixed(1)},${py(data[0]).toFixed(1)} `+
+    data.slice(1).map((v,i)=>`L ${px(i+1).toFixed(1)},${py(v).toFixed(1)}`).join(' ')+
+    ` L ${px(data.length-1).toFixed(1)},${(PAD.top+H).toFixed(1)} L ${px(0).toFixed(1)},${(PAD.top+H).toFixed(1)} Z`:'';
+  const gradId=`ag_${color.replace(/[^a-zA-Z0-9]/g,'')}`;
+  const yTicks=[yMin,(yMin+yMax)/2,yMax].map(v=>Math.round(v));
+  return (
+    <svg width="100%" height={VH} viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="xMidYMid meet" style={{display:'block'}}>
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.22"/>
+          <stop offset="85%" stopColor={color} stopOpacity="0.03"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      {yTicks.map((v,i)=>{
+        const y=py(v);
+        return <g key={i}>
+          <line x1={PAD.left} y1={y} x2={PAD.left+W} y2={y} stroke="rgba(255,255,255,0.045)" strokeWidth="1"/>
+          <text x={PAD.left-6} y={y+4} textAnchor="end" fill="#7c7589" fontSize="11" fontFamily="DM Sans,sans-serif">
+            {unit?`${v}${unit}`:v}
+          </text>
+        </g>;
+      })}
+      {areaD && <path d={areaD} fill={`url(#${gradId})`}/>}
+      <polyline points={linePts} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
+      {objetivo && <g>
+        <line x1={PAD.left} y1={py(objetivo)} x2={PAD.left+W} y2={py(objetivo)} stroke="#7c7589" strokeWidth="1.5" strokeDasharray="5,4"/>
+        <text x={PAD.left+W-4} y={py(objetivo)-5} textAnchor="end" fill="#7c7589" fontSize="10" fontFamily="DM Sans,sans-serif">Obj. {objetivo}{unit}</text>
+      </g>}
+      {showDots && data.map((v,i)=>(
+        <circle key={i} cx={px(i)} cy={py(v)} r="3.5" fill={color} stroke="#0b090d" strokeWidth="2"/>
+      ))}
+      {labels.map((lbl,i)=>{
+        const skip=Math.max(1,Math.ceil(labels.length/6));
+        const isLast=i===labels.length-1;
+        if (!isLast&&i%skip!==0) return null;
+        return <text key={i} x={px(i)} y={VH-4} textAnchor="middle" fill="#7c7589" fontSize="11" fontFamily="DM Sans,sans-serif">{lbl}</text>;
+      })}
+    </svg>
+  );
+}
+
+/* ── UI COMPONENTS ─────────────────────────────────────── */
+function Badge({ tipo, children }) {
+  const map={success:'badge-success',warning:'badge-warning',danger:'badge-danger',
+    info:'badge-info',neutral:'badge-neutral',accent:'badge-accent',
+    'Conforme':'badge-success','No conforme':'badge-danger','Observado':'badge-warning',
+    'Rechazado':'badge-danger','Rechazada':'badge-danger',
+    'Aprobada':'badge-success','Pendiente':'badge-warning'};
+  const cls=map[tipo]||map[children]||'badge-neutral';
+  return <span className={`badge ${cls}`}>{children||tipo}</span>;
+}
+
+function Kpi({ icon, label, value, delta, deltaUnit='%', note, progress, sparkData, color='var(--accent)', inverse=false }) {
+  return (
+    <div className="kpi">
+      {icon && <div className="kpi-icon" style={{color}}><Icon name={icon} size={18}/></div>}
+      <div className="kpi-label">{label}</div>
+      <div className="kpi-value">{value}</div>
+      <div className="kpi-footer">
+        <span className="kpi-note">{note}</span>
+      </div>
+      {progress !== undefined && (
+        <div className="kpi-prog">
+          <div className="kpi-prog-fill" style={{width:`${Math.min(100,progress)}%`,background:color}}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Card({ title, icon, children, action }) {
+  return (
+    <div className="card">
+      {title && <div className="card-header">
+        <div className="card-title">
+          {icon && <span className="card-title-icon"><Icon name={icon} size={15}/></span>}
+          {title}
+        </div>
+        {action}
+      </div>}
+      {children}
+    </div>
+  );
+}
+
+function Vital({ label, value, unit='%', segments=[], note }) {
+  return (
+    <div className="vital">
+      <div className="vital-header">
+        <div className="vital-label">{label}</div>
+        <div className="vital-pct">{value}<sup>{unit}</sup></div>
+      </div>
+      {segments.length>0 && <div className="vital-bar-wrap">
+        {segments.map((seg,i)=><div key={i} className="vital-bar-seg" style={{width:`${seg.pct}%`,background:seg.color}}/>)}
+      </div>}
+      {segments.length>0 && <div className="vital-legend">
+        {segments.map((seg,i)=><div key={i} className="vital-legend-item">
+          <div className="vital-legend-dot" style={{background:seg.color}}/>
+          {seg.label} {seg.pct}%
+        </div>)}
+      </div>}
+      <div className="vital-footer"><span className="vital-note">{note}</span></div>
+    </div>
+  );
+}
+
+function HubButton({ icon, title, subtitle, onClick, color='var(--accent)' }) {
+  return (
+    <button className="hub-btn" onClick={onClick}>
+      <div className="hub-btn-ico" style={{background:`${color}18`,color}}>
+        <Icon name={icon} size={20}/>
+      </div>
+      <div className="hub-btn-body">
+        <div className="hub-btn-title">{title}</div>
+        {subtitle && <div className="hub-btn-sub">{subtitle}</div>}
+      </div>
+      <div className="hub-btn-arr"><Icon name="arrowRight" size={16}/></div>
+    </button>
+  );
+}
+
+function FilterChips({ options, active, onChange }) {
+  return (
+    <div className="tbl-filters">
+      {options.map(opt=>(
+        <button key={opt} className={`chip${active===opt?' active':''}`} onClick={()=>onChange(opt)}>{opt}</button>
+      ))}
+    </div>
+  );
+}
+
+function ProgBar({ value, max=100, color }) {
+  const pct=Math.min(100,Math.max(0,(value/max)*100));
+  return (
+    <div className="prog" style={{minWidth:70}}>
+      <div className={`prog-fill${!color?(pct>=80?' prog-fill-ok':''):''}`}
+           style={{width:`${pct}%`,background:color||undefined}}/>
+    </div>
+  );
+}
+
+class ErrorBoundary extends React.Component {
+  constructor(props){super(props);this.state={error:null}}
+  static getDerivedStateFromError(error){return{error}}
+  render(){
+    if (this.state.error) return (
+      <div className="error-boundary">
+        <Icon name="alert" size={28} style={{color:'var(--err)'}}/>
+        <div className="error-boundary-title">Algo salió mal</div>
+        <div className="error-boundary-msg">{String(this.state.error)}</div>
+        <button onClick={()=>this.setState({error:null})}>Reintentar</button>
+      </div>
+    );
+    return this.props.children;
+  }
+}
+
+/* ── CALIDAD — Helpers ─────────────────────────────────── */
+const _CAL_MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function _calFetch(path) {
+  const {url,key}=window.CALIDAD_CONFIG;
+  return fetch(`${url}${path}`,{headers:{apikey:key,Authorization:`Bearer ${key}`,'Range-Unit':'items',Range:'0-9999'}})
+    .then(r=>r.json()).then(d=>Array.isArray(d)?d:[]);
+}
+
+async function _loadCalidad() {
+  const hace12=new Date(); hace12.setMonth(hace12.getMonth()-12);
+  const hace12iso=hace12.toISOString();
+  const [procesos,ots,piezas,subpiezas,inspecciones,eventos,lotes,lotePiezas,usuarios]=
+    await Promise.all([
+      _calFetch('/procesos?select=id,codigo,area,activo'),
+      _calFetch('/ots?select=id,numero,fecha_entrega_global,proyecto_id,proyectos(nombre)'),
+      _calFetch('/piezas?select=id,ot_id,pos,denom,qty,peso_unit,peso_total,es_borrador&es_borrador=eq.false'),
+      _calFetch('/subpiezas?select=id,pieza_id,numero'),
+      _calFetch('/inspecciones?select=id,subpieza_id,proceso_id,estado,inspector_id,observaciones'),
+      _calFetch(`/inspeccion_eventos?select=id,inspeccion_id,fecha,accion,inspector_id,texto&fecha=gte.${hace12iso}&order=fecha.desc`),
+      _calFetch('/lotes?select=id,ot_id,tipo,estado'),
+      _calFetch('/lote_piezas?select=lote_id,subpieza_id,estado_en_lote'),
+      _calFetch('/usuarios?select=id,nombre'),
+    ]);
+  const procsById={},piezasById={},otsById={},usuariosById={},insMap={},insByInsId={},lotesById={},lpBySp={};
+  procesos.forEach(p=>{procsById[p.id]=p});
+  piezas.forEach(p=>{piezasById[p.id]=p});
+  ots.forEach(o=>{otsById[o.id]=o});
+  usuarios.forEach(u=>{usuariosById[u.id]=u});
+  inspecciones.forEach(i=>{insMap[`${i.subpieza_id}_${i.proceso_id}`]=i;insByInsId[i.id]=i});
+  lotes.forEach(l=>{lotesById[l.id]=l});
+  lotePiezas.forEach(lp=>{if(!lpBySp[lp.subpieza_id])lpBySp[lp.subpieza_id]=[];lpBySp[lp.subpieza_id].push(lp)});
+  const cdProc=procesos.find(p=>p.codigo==='cd');
+  const apProc=procesos.find(p=>p.codigo==='ap');
+  const pintProc=procesos.find(p=>p.codigo==='pint'||p.codigo==='pintura');
+  return {procesos,procsById,cdProc,apProc,pintProc,ots,otsById,piezas,piezasById,
+    subpiezas,inspecciones,insMap,insByInsId,eventos,lotes,lotesById,lotePiezas,lpBySp,usuarios,usuariosById};
+}
+
+function _calPintEst(spId,lotesById,lpBySp) {
+  const lps=lpBySp[spId]||[];
+  if (!lps.length) return 'pending';
+  if (lps.some(lp=>lp.estado_en_lote==='rejected')) return 'rejected';
+  const lotesRel=lps.map(lp=>lotesById[lp.lote_id]).filter(Boolean);
+  if (lotesRel.some(l=>l.estado==='rechazado')) return 'rejected';
+  if (lps.some(lp=>lp.estado_en_lote==='approved')||lotesRel.some(l=>l.estado==='aprobado')) return 'approved';
+  return 'pending';
+}
+function _calBadge(e){return{approved:'success',rejected:'danger',partial:'warning',pending:'neutral',anulado:'neutral'}[e]||'neutral'}
+function _calLbl(e){return{approved:'Aprobado',rejected:'Rechazado',partial:'Parcial',pending:'Pendiente',anulado:'Anulado'}[e]||(e||'Pendiente')}
+function _calFmtFecha(iso){
+  if (!iso) return '—';
+  const d=new Date(iso);
+  return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+
+/* ── CALIDAD — Panel ───────────────────────────────────── */
+function CalidadPanel({ data, onNavigate }) {
+  if (!data) return <div className="fade-in" style={{padding:60,textAlign:'center',color:'var(--t3)'}}>Cargando datos de calidad…</div>;
+  const {cdProc,apProc,pintProc,subpiezas,piezasById,insMap,lotesById,lpBySp,otsById,ots,eventos,insByInsId,procsById}=data;
+  const sps=subpiezas.filter(sp=>piezasById[sp.pieza_id]);
+  const total=sps.length;
+  function cntProc(procId,usePint){
+    let ok=0,err=0,pend=0;
+    sps.forEach(sp=>{
+      const e=usePint?_calPintEst(sp.id,lotesById,lpBySp):(insMap[`${sp.id}_${procId}`]?.estado||'pending');
+      if(e==='approved')ok++;else if(e==='rejected')err++;else pend++;
+    });
+    return{ok,err,pend};
+  }
+  const cd=cdProc?cntProc(cdProc.id,false):{ok:0,err:0,pend:total};
+  const ap=apProc?cntProc(apProc.id,false):{ok:0,err:0,pend:total};
+  const pint={...cntProc(null,true)};
+  let kgTotal=0,kgOk=0;
+  sps.forEach(sp=>{
+    const p=piezasById[sp.pieza_id]; if(!p)return;
+    const kg=p.peso_unit||0; kgTotal+=kg;
+    const est=cdProc?(insMap[`${sp.id}_${cdProc.id}`]?.estado||'pending'):'pending';
+    if(est==='approved')kgOk+=kg;
+  });
+  const reprocesos=eventos.filter(ev=>{
+    if(ev.accion!=='rejected')return false;
+    const ins=insByInsId[ev.inspeccion_id]; if(!ins)return false;
+    const p=procsById[ins.proceso_id];
+    return p&&(p.codigo==='cd'||p.codigo==='ap');
+  }).length;
+  const tasaCD=total>0?(cd.ok/total*100).toFixed(1):'0.0';
+  const tasaAP=total>0?(ap.ok/total*100).toFixed(1):'0.0';
+  const tasaPINT=total>0?(pint.ok/total*100).toFixed(1):'0.0';
+  const otErr={},otTot={};
+  sps.forEach(sp=>{
+    const p=piezasById[sp.pieza_id];if(!p)return;
+    const id=p.ot_id;
+    if(!otTot[id]){otTot[id]=0;otErr[id]=0;}
+    otTot[id]++;
+    const e=cdProc?(insMap[`${sp.id}_${cdProc.id}`]?.estado||'pending'):'pending';
+    if(e==='rejected')otErr[id]++;
+  });
+  const rankOTs=Object.keys(otErr).filter(id=>otErr[id]>0)
+    .sort((a,b)=>otErr[b]-otErr[a]).slice(0,6)
+    .map(id=>({id,numero:otsById[id]?.numero||'—',rechazos:otErr[id],total:otTot[id],tasa:(otErr[id]/otTot[id]*100).toFixed(1)}));
+  const now=new Date();
+  const mesesD=Array.from({length:12},(_,i)=>{
+    const d=new Date(now.getFullYear(),now.getMonth()-11+i,1);
+    return{key:`${d.getFullYear()}-${d.getMonth()}`,lbl:_CAL_MESES[d.getMonth()],ok:0,tot:0};
+  });
+  const mIdx={};mesesD.forEach((m,i)=>{mIdx[m.key]=i});
+  eventos.forEach(ev=>{
+    const ins=insByInsId[ev.inspeccion_id];if(!ins)return;
+    const proc=procsById[ins.proceso_id];if(!proc||proc.codigo!=='cd')return;
+    const d=new Date(ev.fecha);
+    const k=`${d.getFullYear()}-${d.getMonth()}`;
+    const i=mIdx[k];if(i===undefined)return;
+    if(ev.accion==='approved'||ev.accion==='rejected'){mesesD[i].tot++;if(ev.accion==='approved')mesesD[i].ok++;}
+  });
+  const confData=mesesD.map(m=>m.tot>0?parseFloat((m.ok/m.tot*100).toFixed(1)):null);
+  const confFilt=confData.filter(v=>v!==null);
+  const lblsFilt=mesesD.map(m=>m.lbl).filter((_,i)=>confData[i]!==null);
+  const fmtKg=v=>v>=1000?`${(v/1000).toFixed(1)} t`:`${v.toFixed(0)} kg`;
+  return (
+    <div className="fade-in">
+      <div className="g4 mb24">
+        <Kpi icon="check" label="CD — Conformidad" value={`${cd.ok} / ${total}`} note={`${tasaCD}% aprobadas`} progress={total>0?cd.ok/total*100:0} color="var(--ok)"/>
+        <Kpi icon="check" label="AP — Conformidad" value={`${ap.ok} / ${total}`} note={`${tasaAP}% aprobadas`} progress={total>0?ap.ok/total*100:0} color="var(--ok)"/>
+        <Kpi icon="factory" label="KG aprobados (CD)" value={fmtKg(kgOk)} note={`de ${fmtKg(kgTotal)} totales`} progress={kgTotal>0?kgOk/kgTotal*100:0} color="var(--accent)"/>
+        <Kpi icon="alert" label="Reprocesos" value={reprocesos} note="eventos de rechazo CD+AP" color="var(--err)"/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}} className="mb24">
+        <Vital label="Control Dimensional (CD)" value={tasaCD} unit="%" segments={[
+          {label:'Aprobado',pct:total>0?parseFloat((cd.ok/total*100).toFixed(1)):0,color:'var(--ok)'},
+          {label:'Rechazado',pct:total>0?parseFloat((cd.err/total*100).toFixed(1)):0,color:'var(--err)'},
+          {label:'Pendiente',pct:total>0?parseFloat((cd.pend/total*100).toFixed(1)):0,color:'var(--sf2)'},
+        ]} note={`${cd.ok} aprobadas · ${cd.err} rechazadas · ${cd.pend} pendientes`}/>
+        <Vital label="Apto Pintura (AP)" value={tasaAP} unit="%" segments={[
+          {label:'Aprobado',pct:total>0?parseFloat((ap.ok/total*100).toFixed(1)):0,color:'var(--ok)'},
+          {label:'Rechazado',pct:total>0?parseFloat((ap.err/total*100).toFixed(1)):0,color:'var(--err)'},
+          {label:'Pendiente',pct:total>0?parseFloat((ap.pend/total*100).toFixed(1)):0,color:'var(--sf2)'},
+        ]} note={`${ap.ok} aprobadas · ${ap.err} rechazadas · ${ap.pend} pendientes`}/>
+        <Vital label="Pintura (PINT)" value={tasaPINT} unit="%" segments={[
+          {label:'Aprobado',pct:total>0?parseFloat((pint.ok/total*100).toFixed(1)):0,color:'var(--ok)'},
+          {label:'Rechazado',pct:total>0?parseFloat((pint.err/total*100).toFixed(1)):0,color:'var(--err)'},
+          {label:'Pendiente',pct:total>0?parseFloat((pint.pend/total*100).toFixed(1)):0,color:'var(--sf2)'},
+        ]} note={`${pint.ok} aprobadas · ${pint.err} rechazadas · ${pint.pend} pendientes`}/>
+      </div>
+      <div className="g2 mb24">
+        <Card title="Conformidad CD — 12 meses (%)" icon="pulse">
+          <div className="card-body">
+            {confFilt.length>0
+              ?<AreaChart data={confFilt} labels={lblsFilt} height={200} color="var(--ok)" objetivo={90} unit="%"/>
+              :<div style={{padding:32,textAlign:'center',color:'var(--t3)',fontSize:13}}>Sin eventos en el período</div>}
+          </div>
+        </Card>
+        <Card title="OTs con más rechazos (CD)" icon="alert">
+          {rankOTs.length===0
+            ?<div style={{padding:24,textAlign:'center',color:'var(--t3)',fontSize:13}}>Sin rechazos registrados</div>
+            :<div className="tbl-wrap">
+              <table><thead><tr>
+                <th>OT</th><th style={{textAlign:'right'}}>Rechazos</th><th style={{textAlign:'right'}}>Total</th><th>Tasa</th>
+              </tr></thead><tbody>
+                {rankOTs.map(o=>(
+                  <tr key={o.id}>
+                    <td className="cell-strong">{o.numero}</td>
+                    <td style={{textAlign:'right',color:'var(--err)',fontWeight:700}}>{o.rechazos}</td>
+                    <td style={{textAlign:'right'}} className="t3 f12">{o.total}</td>
+                    <td><Badge tipo={o.tasa>10?'danger':o.tasa>5?'warning':'neutral'}>{o.tasa}%</Badge></td>
+                  </tr>
+                ))}
+              </tbody></table>
+            </div>}
+        </Card>
+      </div>
+      <div className="g2">
+        <HubButton icon="clipboard" title="Inspecciones por OT" subtitle={`${total} subpiezas · ${ots.length} OTs`} onClick={()=>onNavigate(1)} color="var(--ok)"/>
+        <HubButton icon="pulse" title="Tendencia de conformidad" subtitle="Serie mensual 12 meses" onClick={()=>onNavigate(2)} color="var(--ok)"/>
+      </div>
+    </div>
+  );
+}
+
+/* ── CALIDAD — Inspecciones ────────────────────────────── */
+function CalidadInspecciones({ data }) {
+  const [otSel,setOtSel]=_us(null);
+  const [piezaSel,setPiezaSel]=_us(null);
+  const [filtroProc,setFiltroProc]=_us('Todos');
+  const [filtroEst,setFiltroEst]=_us('Todos');
+  if (!data) return <div className="fade-in" style={{padding:60,textAlign:'center',color:'var(--t3)'}}>Cargando datos de calidad…</div>;
+  const {ots,otsById,piezas,piezasById,subpiezas,insMap,cdProc,apProc,lpBySp,lotesById}=data;
+
+  const otStats=ots.map(ot=>{
+    const otPiezas=piezas.filter(p=>p.ot_id===ot.id);
+    if(!otPiezas.length)return null;
+    const otPIds=new Set(otPiezas.map(p=>p.id));
+    const otSps=subpiezas.filter(sp=>otPIds.has(sp.pieza_id));
+    const total=otSps.length; if(!total)return null;
+    let cdOk=0,apOk=0,pintOk=0,cdErr=0;
+    otSps.forEach(sp=>{
+      const cdE=cdProc?(insMap[`${sp.id}_${cdProc.id}`]?.estado||'pending'):'pending';
+      const apE=apProc?(insMap[`${sp.id}_${apProc.id}`]?.estado||'pending'):'pending';
+      const pintE=_calPintEst(sp.id,lotesById,lpBySp);
+      if(cdE==='approved')cdOk++;if(cdE==='rejected')cdErr++;
+      if(apE==='approved')apOk++;if(pintE==='approved')pintOk++;
+    });
+    return{...ot,total,cdOk,apOk,pintOk,cdErr,tasaCD:(cdOk/total*100).toFixed(0)};
+  }).filter(Boolean);
+
+  // Vista detalle pieza
+  if (otSel&&piezaSel) {
+    const ot=otsById[otSel],pieza=piezasById[piezaSel];
+    const spsDePieza=subpiezas.filter(sp=>sp.pieza_id===piezaSel);
+    const spIds=new Set(spsDePieza.map(sp=>sp.id));
+    const insDesPieza=data.inspecciones.filter(i=>spIds.has(i.subpieza_id));
+    const insIdSet=new Set(insDesPieza.map(i=>i.id));
+    const insDesPiezaById={};insDesPieza.forEach(i=>{insDesPiezaById[i.id]=i});
+    const evts=data.eventos.filter(ev=>insIdSet.has(ev.inspeccion_id)).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+    const spNumero={};spsDePieza.forEach(sp=>{spNumero[sp.id]=sp.numero||sp.id});
+    return (
+      <div className="fade-in">
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
+          <button onClick={()=>setPiezaSel(null)} style={{background:'var(--sf2)',border:'1px solid var(--bd)',borderRadius:6,padding:'5px 14px',color:'var(--t2)',cursor:'pointer',fontSize:12}}>← Volver</button>
+          <span className="t3 f12">OT</span><span style={{fontWeight:700,color:'var(--t1)'}}>{ot?.numero}</span>
+          <span className="t3 f12">›</span><span style={{fontWeight:600,color:'var(--t1)'}}>{pieza?.pos}</span>
+          <span className="t3 f12">—</span><span className="t3 f12">{pieza?.denom}</span>
+        </div>
+        {evts.length===0
+          ?<div className="card" style={{padding:32,textAlign:'center',color:'var(--t3)',fontSize:13}}>Sin eventos de inspección registrados para esta pieza en los últimos 12 meses</div>
+          :<div className="card"><div className="tbl-wrap"><table>
+            <thead><tr><th>Subpieza</th><th>Proceso</th><th>Fecha</th><th>Inspector</th><th>Estado</th><th>Observación</th></tr></thead>
+            <tbody>{evts.map(ev=>{
+              const ins=insDesPiezaById[ev.inspeccion_id];
+              const proc=ins?data.procsById[ins.proceso_id]:null;
+              const insp=ev.inspector_id?data.usuariosById[String(ev.inspector_id)]:null;
+              const nota=ev.texto||ins?.observaciones||'';
+              return <tr key={ev.id}>
+                <td className="cell-id">{spNumero[ins?.subpieza_id]||'—'}</td>
+                <td style={{fontWeight:600,textTransform:'uppercase',fontSize:11}}>{proc?.codigo?.toUpperCase()||'—'}</td>
+                <td className="t3 f12">{_calFmtFecha(ev.fecha)}</td>
+                <td className="t2">{insp?.nombre||`#${ev.inspector_id}`}</td>
+                <td><Badge tipo={_calBadge(ev.accion)}>{_calLbl(ev.accion)}</Badge></td>
+                <td style={{color:'var(--t2)',fontSize:12,maxWidth:300}}>{nota||<span className="t3">—</span>}</td>
+              </tr>;
+            })}</tbody>
+          </table></div></div>}
+      </div>
+    );
+  }
+
+  // Vista detalle OT
+  if (otSel) {
+    const ot=otsById[otSel];
+    const otPiezas=piezas.filter(p=>p.ot_id===otSel).sort((a,b)=>(a.pos||'').localeCompare(b.pos||''));
+    const estNorm={'Aprobado':'approved','Rechazado':'rejected','Pendiente':'pending'};
+    function aggrPieza(pieza,procId,usePint){
+      const sps=subpiezas.filter(sp=>sp.pieza_id===pieza.id); if(!sps.length)return 'pending';
+      const estados=sps.map(sp=>usePint?_calPintEst(sp.id,lotesById,lpBySp):(insMap[`${sp.id}_${procId}`]?.estado||'pending'));
+      if(estados.every(e=>e==='approved'))return 'approved';
+      if(estados.some(e=>e==='rejected'))return 'rejected';
+      if(estados.some(e=>e==='approved'))return 'partial';
+      return 'pending';
+    }
+    const otSps=subpiezas.filter(sp=>{const p=piezasById[sp.pieza_id];return p&&p.ot_id===otSel});
+    const otTotal=otSps.length;let otCdOk=0,otApOk=0,otPintOk=0;
+    otSps.forEach(sp=>{
+      if(cdProc&&insMap[`${sp.id}_${cdProc.id}`]?.estado==='approved')otCdOk++;
+      if(apProc&&insMap[`${sp.id}_${apProc.id}`]?.estado==='approved')otApOk++;
+      if(_calPintEst(sp.id,lotesById,lpBySp)==='approved')otPintOk++;
+    });
+    return (
+      <div className="fade-in">
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+          <button onClick={()=>{setOtSel(null);setPiezaSel(null);setFiltroProc('Todos');setFiltroEst('Todos')}}
+                  style={{background:'var(--sf2)',border:'1px solid var(--bd)',borderRadius:6,padding:'5px 14px',color:'var(--t2)',cursor:'pointer',fontSize:12}}>← Volver</button>
+          <span className="t3 f12">OT</span>
+          <span style={{fontWeight:700,color:'var(--t1)'}}>{ot?.numero}</span>
+          {ot?.proyectos?.nombre&&<span className="t3 f12">· {ot.proyectos.nombre}</span>}
+        </div>
+        <div className="g3 mb24">
+          <Kpi icon="check" label="CD" value={`${otCdOk} / ${otTotal}`} note={`${otTotal>0?(otCdOk/otTotal*100).toFixed(0):0}% aprobadas`} progress={otTotal>0?otCdOk/otTotal*100:0} color="var(--ok)"/>
+          <Kpi icon="check" label="AP" value={`${otApOk} / ${otTotal}`} note={`${otTotal>0?(otApOk/otTotal*100).toFixed(0):0}% aprobadas`} progress={otTotal>0?otApOk/otTotal*100:0} color="var(--ok)"/>
+          <Kpi icon="factory" label="PINT" value={`${otPintOk} / ${otTotal}`} note={`${otTotal>0?(otPintOk/otTotal*100).toFixed(0):0}% aprobadas`} progress={otTotal>0?otPintOk/otTotal*100:0} color="var(--accent)"/>
+        </div>
+        <div style={{display:'flex',gap:12,flexWrap:'wrap',marginBottom:16}}>
+          <FilterChips options={['Todos','CD','AP','PINT']} active={filtroProc} onChange={setFiltroProc}/>
+          <FilterChips options={['Todos','Aprobado','Rechazado','Pendiente']} active={filtroEst} onChange={setFiltroEst}/>
+        </div>
+        <div className="card"><div className="tbl-wrap"><table>
+          <thead><tr><th>Pos</th><th>Denominación</th><th style={{textAlign:'center'}}>Qty</th><th>CD</th><th>AP</th><th>PINT</th><th style={{textAlign:'right'}}>KG/u</th></tr></thead>
+          <tbody>{otPiezas.map(pieza=>{
+            const cdE=cdProc?aggrPieza(pieza,cdProc.id,false):'pending';
+            const apE=apProc?aggrPieza(pieza,apProc.id,false):'pending';
+            const pintE=aggrPieza(pieza,null,true);
+            if(filtroProc!=='Todos'){
+              const pE=filtroProc==='CD'?cdE:filtroProc==='AP'?apE:pintE;
+              if(filtroEst!=='Todos'&&pE!==estNorm[filtroEst])return null;
+            }else if(filtroEst!=='Todos'){
+              const t=estNorm[filtroEst];if(cdE!==t&&apE!==t&&pintE!==t)return null;
+            }
+            const spCnt=subpiezas.filter(sp=>sp.pieza_id===pieza.id).length;
+            return <tr key={pieza.id} onClick={()=>setPiezaSel(pieza.id)} style={{cursor:'pointer'}}>
+              <td className="cell-id">{pieza.pos||'—'}</td>
+              <td className="cell-strong">{pieza.denom||'—'}</td>
+              <td style={{textAlign:'center'}} className="t3 f12">{spCnt}</td>
+              <td><Badge tipo={_calBadge(cdE)}>{_calLbl(cdE)}</Badge></td>
+              <td><Badge tipo={_calBadge(apE)}>{_calLbl(apE)}</Badge></td>
+              <td><Badge tipo={_calBadge(pintE)}>{_calLbl(pintE)}</Badge></td>
+              <td style={{textAlign:'right'}} className="t3 f12">{pieza.peso_unit?`${pieza.peso_unit} kg`:'—'}</td>
+            </tr>;
+          }).filter(Boolean)}</tbody>
+        </table></div></div>
+      </div>
+    );
+  }
+
+  // Lista OTs
+  return (
+    <div className="fade-in card"><div className="tbl-wrap"><table>
+      <thead><tr>
+        <th>OT</th><th>Subpiezas</th><th style={{minWidth:80}}>CD</th>
+        <th style={{minWidth:80}}>AP</th><th style={{minWidth:80}}>PINT</th>
+        <th style={{textAlign:'right'}}>Rechazos</th><th>Tasa CD</th>
+      </tr></thead>
+      <tbody>{otStats.map(ot=>(
+        <tr key={ot.id} onClick={()=>setOtSel(ot.id)} style={{cursor:'pointer'}}>
+          <td className="cell-strong">{ot.numero}</td>
+          <td className="t3 f12">{ot.total}</td>
+          <td><ProgBar value={ot.cdOk} max={ot.total} color="var(--ok)"/></td>
+          <td><ProgBar value={ot.apOk} max={ot.total} color="var(--ok)"/></td>
+          <td><ProgBar value={ot.pintOk} max={ot.total} color="var(--ok)"/></td>
+          <td style={{textAlign:'right',color:ot.cdErr>0?'var(--err)':'var(--t3)',fontWeight:ot.cdErr>0?700:400}}>{ot.cdErr||'—'}</td>
+          <td><Badge tipo={ot.tasaCD>=90?'success':ot.tasaCD>=70?'warning':'danger'}>{ot.tasaCD}%</Badge></td>
+        </tr>
+      ))}</tbody>
+    </table></div></div>
+  );
+}
+
+/* ── CALIDAD — Conformidad ─────────────────────────────── */
+function CalidadConformidad({ data }) {
+  if (!data) return <div className="fade-in" style={{padding:60,textAlign:'center',color:'var(--t3)'}}>Cargando datos de calidad…</div>;
+  const {eventos,insByInsId,procsById,usuariosById}=data;
+  const now=new Date();
+  const meses=Array.from({length:12},(_,i)=>{
+    const d=new Date(now.getFullYear(),now.getMonth()-11+i,1);
+    return{key:`${d.getFullYear()}-${d.getMonth()}`,lbl:_CAL_MESES[d.getMonth()],cd:{ok:0,tot:0},ap:{ok:0,tot:0}};
+  });
+  const mIdx={};meses.forEach((m,i)=>{mIdx[m.key]=i});
+  eventos.forEach(ev=>{
+    const ins=insByInsId[ev.inspeccion_id];if(!ins)return;
+    const proc=procsById[ins.proceso_id];
+    if(!proc||(proc.codigo!=='cd'&&proc.codigo!=='ap'))return;
+    const d=new Date(ev.fecha);
+    const k=`${d.getFullYear()}-${d.getMonth()}`;
+    const i=mIdx[k];if(i===undefined)return;
+    const b=proc.codigo==='cd'?meses[i].cd:meses[i].ap;
+    if(ev.accion==='approved'||ev.accion==='rejected'){b.tot++;if(ev.accion==='approved')b.ok++;}
+  });
+  const confCD=meses.map(m=>m.cd.tot>0?parseFloat((m.cd.ok/m.cd.tot*100).toFixed(1)):null);
+  const lbls=meses.map(m=>m.lbl);
+  const cdVals=confCD.filter(v=>v!==null);
+  const cdLbls=lbls.filter((_,i)=>confCD[i]!==null);
+  const best=cdVals.length?Math.max(...cdVals):null;
+  const worst=cdVals.length?Math.min(...cdVals):null;
+  const bestLbl=best!==null?lbls[confCD.indexOf(best)]:'—';
+  const worstLbl=worst!==null?lbls[confCD.indexOf(worst)]:'—';
+  const inspStats={};
+  eventos.forEach(ev=>{
+    const ins=insByInsId[ev.inspeccion_id];if(!ins)return;
+    const proc=procsById[ins.proceso_id];
+    if(!proc||(proc.codigo!=='cd'&&proc.codigo!=='ap'))return;
+    if(!ev.inspector_id)return;
+    const uid=String(ev.inspector_id);
+    if(!inspStats[uid])inspStats[uid]={id:uid,nombre:usuariosById[uid]?.nombre||`Inspector ${uid}`,tot:0,rej:0};
+    inspStats[uid].tot++;
+    if(ev.accion==='rejected')inspStats[uid].rej++;
+  });
+  const rankInsp=Object.values(inspStats).sort((a,b)=>b.tot-a.tot).slice(0,10);
+  return (
+    <div className="fade-in">
+      <div className="g2 mb24">
+        <Kpi icon="check" label="Mejor mes (CD)" value={best!==null?`${best}%`:'—'} note={bestLbl} color="var(--ok)"/>
+        <Kpi icon="alert" label="Peor mes (CD)" value={worst!==null?`${worst}%`:'—'} note={worstLbl} color="var(--err)"/>
+      </div>
+      <Card title="Conformidad CD — 12 meses (%)" icon="pulse">
+        <div className="card-body">
+          {cdVals.length>0
+            ?<AreaChart data={cdVals} labels={cdLbls} height={220} color="var(--ok)" objetivo={90} unit="%"/>
+            :<div style={{padding:32,textAlign:'center',color:'var(--t3)',fontSize:13}}>Sin eventos de inspección en el período</div>}
+        </div>
+      </Card>
+      {rankInsp.length>0&&<div style={{marginTop:20}}>
+        <Card title="Inspectores — actividad últimos 12 meses" icon="users">
+          <div className="tbl-wrap"><table>
+            <thead><tr><th>Inspector</th><th style={{textAlign:'right'}}>Inspecciones</th><th style={{textAlign:'right'}}>Rechazos</th><th>Tasa rechazo</th></tr></thead>
+            <tbody>{rankInsp.map(ins=>{
+              const tasa=ins.tot>0?(ins.rej/ins.tot*100).toFixed(1):'0.0';
+              return <tr key={ins.id}>
+                <td className="cell-strong">{ins.nombre}</td>
+                <td style={{textAlign:'right'}}>{ins.tot}</td>
+                <td style={{textAlign:'right',color:ins.rej>0?'var(--warn)':'var(--t3)'}}>{ins.rej}</td>
+                <td><Badge tipo={tasa>20?'danger':tasa>5?'warning':'neutral'}>{tasa}%</Badge></td>
+              </tr>;
+            })}</tbody>
+          </table></div>
+        </Card>
+      </div>}
+    </div>
+  );
+}
+
+/* ── CALIDAD — Actividad diaria ────────────────────────── */
+function CalidadActividad({ data }) {
+  const _fmtKey=d=>{
+    const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  };
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const [fechaSel,setFechaSel]=_us(_fmtKey(hoy));
+  if (!data) return <div className="fade-in" style={{padding:60,textAlign:'center',color:'var(--t3)'}}>Cargando datos de calidad…</div>;
+  const {eventos,insByInsId,procsById,usuariosById,subpiezas,piezasById,otsById}=data;
+  const spById={};subpiezas.forEach(sp=>{spById[sp.id]=sp});
+  const byDate={};
+  eventos.forEach(ev=>{const k=_fmtKey(new Date(ev.fecha));if(!byDate[k])byDate[k]=[];byDate[k].push(ev)});
+  const dias30=Array.from({length:30},(_,i)=>{
+    const d=new Date(hoy);d.setDate(d.getDate()-29+i);
+    const k=_fmtKey(d);
+    return{key:k,dia:d.getDate(),cnt:byDate[k]?.length||0};
+  });
+  const evtsDia=(byDate[fechaSel]||[]).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  let diaOk=0,diaErr=0;const porProc={};
+  evtsDia.forEach(ev=>{
+    const ins=insByInsId[ev.inspeccion_id];if(!ins)return;
+    const proc=procsById[ins.proceso_id];if(!proc)return;
+    const cod=proc.codigo;
+    if(!porProc[cod])porProc[cod]={ok:0,err:0};
+    if(ev.accion==='approved'){diaOk++;porProc[cod].ok++;}
+    if(ev.accion==='rejected'){diaErr++;porProc[cod].err++;}
+  });
+  const ayer=new Date(hoy);ayer.setDate(ayer.getDate()-1);
+  const esHoy=fechaSel===_fmtKey(hoy);
+  const esAyer=fechaSel===_fmtKey(ayer);
+  const [y,mo,d]=fechaSel.split('-');
+  const fmtDiaLabel=esHoy?'Hoy':esAyer?'Ayer':`${d}/${mo}/${y}`;
+  const navDir=dir=>{
+    const nd=new Date(fechaSel+'T00:00:00');nd.setDate(nd.getDate()+dir);
+    if(_fmtKey(nd)<=_fmtKey(hoy))setFechaSel(_fmtKey(nd));
+  };
+  const heatColor=cnt=>!cnt?'var(--sf2)':cnt<5?'rgba(62,207,142,0.22)':cnt<15?'rgba(62,207,142,0.55)':'rgba(62,207,142,0.88)';
+  const heatTxt=cnt=>cnt>=5?(cnt<15?'var(--t1)':'#fff'):'var(--t3)';
+  return (
+    <div className="fade-in">
+      <Card title="Actividad — últimos 30 días" icon="pulse">
+        <div style={{padding:'12px 16px 4px',display:'flex',flexWrap:'wrap',gap:5}}>
+          {dias30.map(d=>(
+            <div key={d.key} onClick={()=>setFechaSel(d.key)} title={`${d.key}: ${d.cnt} eventos`}
+                 style={{width:30,height:30,borderRadius:5,cursor:'pointer',
+                   background:d.key===fechaSel?'var(--accent)':heatColor(d.cnt),
+                   border:`1px solid ${d.key===fechaSel?'transparent':'var(--bd)'}`,
+                   display:'flex',alignItems:'center',justifyContent:'center',
+                   fontSize:10,fontWeight:600,color:d.key===fechaSel?'#fff':heatTxt(d.cnt),transition:'all .1s'}}>
+              {d.dia}
+            </div>
+          ))}
+        </div>
+        <div style={{padding:'6px 16px 12px',fontSize:11,color:'var(--t3)',display:'flex',gap:14}}>
+          <span>Sin actividad</span>
+          <span style={{color:'rgba(62,207,142,0.7)'}}>● Baja (1–4)</span>
+          <span style={{color:'rgba(62,207,142,0.9)'}}>● Media (5–14)</span>
+          <span style={{color:'var(--ok)'}}>● Alta (15+)</span>
+        </div>
+      </Card>
+      <div style={{display:'flex',alignItems:'center',gap:12,margin:'20px 0 16px'}}>
+        <button onClick={()=>navDir(-1)} style={{background:'var(--sf2)',border:'1px solid var(--bd)',borderRadius:6,padding:'6px 14px',cursor:'pointer',color:'var(--t2)',fontSize:15}}>‹</button>
+        <div style={{fontWeight:700,fontSize:20,color:'var(--t1)',minWidth:80}}>{fmtDiaLabel}</div>
+        <button onClick={()=>navDir(1)} disabled={esHoy} style={{background:'var(--sf2)',border:'1px solid var(--bd)',borderRadius:6,padding:'6px 14px',cursor:esHoy?'default':'pointer',color:esHoy?'var(--t3)':'var(--t2)',fontSize:15}}>›</button>
+        <span className="t3 f12">{d}/{mo}/{y}</span>
+        {evtsDia.length>0&&<span className="t3 f12">· {evtsDia.length} eventos registrados</span>}
+      </div>
+      {evtsDia.length===0
+        ?<div className="card" style={{padding:48,textAlign:'center',color:'var(--t3)',fontSize:14}}>Sin actividad de inspección registrada para este día</div>
+        :<>
+          <div className="g4 mb24">
+            <Kpi icon="check" label="Aprobadas" value={diaOk} note="eventos aprobados en el día" color="var(--ok)"/>
+            <Kpi icon="alert" label="Rechazadas" value={diaErr} note="eventos rechazados en el día" color="var(--err)"/>
+            <Kpi icon="clipboard" label="CD" value={porProc['cd']?`${porProc['cd'].ok} ✓  ${porProc['cd'].err} ✗`:'—'} note="control dimensional" color="var(--accent)"/>
+            <Kpi icon="check" label="AP" value={porProc['ap']?`${porProc['ap'].ok} ✓  ${porProc['ap'].err} ✗`:'—'} note="apto pintura" color="var(--accent)"/>
+          </div>
+          <div className="card"><div className="tbl-wrap"><table>
+            <thead><tr><th>Hora</th><th>OT</th><th>Pieza</th><th>Proc.</th><th>Inspector</th><th>Estado</th><th>Observación</th></tr></thead>
+            <tbody>{evtsDia.map(ev=>{
+              const ins=insByInsId[ev.inspeccion_id];
+              const proc=ins?procsById[ins.proceso_id]:null;
+              const sp=ins?spById[ins.subpieza_id]:null;
+              const pieza=sp?piezasById[sp.pieza_id]:null;
+              const ot=pieza?otsById[pieza.ot_id]:null;
+              const insp=ev.inspector_id?usuariosById[String(ev.inspector_id)]:null;
+              const hora=new Date(ev.fecha);
+              const horaStr=`${hora.getHours().toString().padStart(2,'0')}:${hora.getMinutes().toString().padStart(2,'0')}`;
+              return <tr key={ev.id}>
+                <td className="cell-id">{horaStr}</td>
+                <td className="cell-strong">{ot?.numero||'—'}</td>
+                <td className="t2" style={{fontSize:12}}>{pieza?`${pieza.pos} — ${pieza.denom}`:'—'}</td>
+                <td style={{fontWeight:700,textTransform:'uppercase',fontSize:11,color:'var(--accent)'}}>{proc?.codigo?.toUpperCase()||'—'}</td>
+                <td className="t2">{insp?.nombre||(ev.inspector_id?`#${ev.inspector_id}`:'—')}</td>
+                <td><Badge tipo={_calBadge(ev.accion)}>{_calLbl(ev.accion)}</Badge></td>
+                <td style={{color:'var(--t2)',fontSize:12,maxWidth:280}}>{ev.texto||<span className="t3">—</span>}</td>
+              </tr>;
+            })}</tbody>
+          </table></div></div>
+        </>
+      }
+    </div>
+  );
+}
+
+/* ── APP SHELL ──────────────────────────────────────────── */
+const TABS = ['Panel', 'Inspecciones y ensayos', 'Conformidad', 'Actividad diaria'];
+
+function App() {
+  const [tab,setTab]=_us(0);
+  const [theme,setTheme]=_us(()=>localStorage.getItem('cmt_theme')||'dark');
+  const [data,setData]=_us(null);
+  const [error,setError]=_us(null);
+  const contentRef=_ur(null);
+
+  _ue(()=>{
+    document.documentElement.setAttribute('data-theme',theme);
+    localStorage.setItem('cmt_theme',theme);
+  },[theme]);
+
+  _ue(()=>{
+    _loadCalidad()
+      .then(setData)
+      .catch(err=>{console.error('[Calidad]',err);setError(String(err));});
+  },[]);
+
+  const handleTab=i=>{setTab(i);if(contentRef.current)contentRef.current.scrollTop=0};
+
+  const renderView=()=>{
+    if (error) return <div className="fade-in" style={{padding:40,textAlign:'center'}}>
+      <div style={{color:'var(--err)',fontSize:14,marginBottom:8}}>Error cargando datos de calidad</div>
+      <div style={{color:'var(--t3)',fontSize:12,fontFamily:'monospace'}}>{error}</div>
+    </div>;
+    if (tab===0) return <CalidadPanel data={data} onNavigate={handleTab}/>;
+    if (tab===1) return <CalidadInspecciones data={data}/>;
+    if (tab===2) return <CalidadConformidad data={data}/>;
+    if (tab===3) return <CalidadActividad data={data}/>;
+    return null;
+  };
+
+  return (
+    <div className="cal-app">
+      {/* Header */}
+      <div className="cal-header">
+        <div className="cal-brand">
+          <div className="cal-logo">Cimo<span>met</span></div>
+          <div className="cal-sep"/>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <Icon name="medal" size={16} style={{color:'var(--ok)'}}/>
+            <div className="cal-title">Calidad</div>
+          </div>
+        </div>
+        <button className="theme-btn" onClick={()=>setTheme(t=>t==='dark'?'light':'dark')}
+                title={theme==='dark'?'Modo claro':'Modo oscuro'}>
+          <Icon name={theme==='dark'?'sun':'moon'} size={15}/>
+        </button>
+      </div>
+      {/* Tabs */}
+      <div className="tabs-bar">
+        {TABS.map((t,i)=>(
+          <button key={t} className={`tab-btn${tab===i?' active':''}`} onClick={()=>handleTab(i)}>{t}</button>
+        ))}
+      </div>
+      {/* Content */}
+      <div className="cal-body">
+        <div className="content" ref={contentRef}>
+          <ErrorBoundary>
+            {renderView()}
+          </ErrorBoundary>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
